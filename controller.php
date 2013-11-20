@@ -33,9 +33,17 @@ class Controller {
 		else return false;
 	}
 
-	function getBy($column,$value) {
-		$query = "SELECT id FROM ".static::$table. " WHERE $column=:value ORDER BY id DESC";
+	function getBy($column,$value, $like=false) {
+		$value = strtolower($value);
+		if($like) {
+			$query = "SELECT id FROM ".static::$table. " WHERE lower($column) LIKE :value ORDER BY id DESC";
+			$value = "%".$value."%";
+		}
+		else {
+			$query = "SELECT id FROM ".static::$table. " WHERE $column=:value ORDER BY id DESC";
+		}
 		$sth = $this->db->prepare($query);
+		
 		$sth->bindParam(":value",$value);
 		$sth->execute();
 
