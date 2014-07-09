@@ -5,6 +5,10 @@ require_once('model.php');
 class Controller {
 	public $db;
 
+<<<<<<< HEAD
+=======
+	public static $modelPath;
+>>>>>>> 57de4889e91571d70f4c08adbbcac516fb7ba19b
 	public static $table;
 	public static $model;
 	public static $application_name;
@@ -13,15 +17,29 @@ class Controller {
 
 	function __construct() {
 		$this->db = DB::connect(static::$databaseUser);
+<<<<<<< HEAD
 	}
 
 	function index($orderBy="id ASC") {
 		$query = "SELECT * FROM ".static::$table." ORDER BY $orderBy";
+=======
+		$model = strtolower(static::$model);
+		$path = getenv("DOCUMENT_ROOT").static::$modelPath;
+		require_once($path);
+	}
+
+	function index() {
+		$query = "SELECT id FROM ".static::$table." ORDER BY id ASC";
+>>>>>>> 57de4889e91571d70f4c08adbbcac516fb7ba19b
 		$sth = $this->db->prepare($query);
 		$sth->execute();
 
 		while($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+<<<<<<< HEAD
 			$models[] = new static::$model($row['ID'],$row);
+=======
+			$models[] = new static::$model($row['ID']);
+>>>>>>> 57de4889e91571d70f4c08adbbcac516fb7ba19b
 		}
 		if(isset($models)) {
 			return $models;
@@ -29,6 +47,7 @@ class Controller {
 		else return false;
 	}
 
+<<<<<<< HEAD
 	function getBy($column,$value, $like=false, $order="ASC") {
 		$value = strtolower($value);
 		if($like) {
@@ -39,17 +58,35 @@ class Controller {
 			$query = "SELECT * FROM ".static::$table. " WHERE lower($column)=:value ORDER BY id DESC";
 		}
 		$sth = $this->db->prepare($query);
+=======
+	function getBy($column,$value, $like=false) {
+		$value = strtolower($value);
+		if($like) {
+			$query = "SELECT id FROM ".static::$table. " WHERE lower($column) LIKE :value ORDER BY id DESC";
+			$value = "%".$value."%";
+		}
+		else {
+			$query = "SELECT id FROM ".static::$table. " WHERE $column=:value ORDER BY id DESC";
+		}
+		$sth = $this->db->prepare($query);
+		
+>>>>>>> 57de4889e91571d70f4c08adbbcac516fb7ba19b
 		$sth->bindParam(":value",$value);
 		$sth->execute();
 
 		while($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+<<<<<<< HEAD
 			$models[] = new static::$model($row['ID'],$row);
+=======
+			$models[] = new static::$model($row['ID']);
+>>>>>>> 57de4889e91571d70f4c08adbbcac516fb7ba19b
 		}
 		if(isset($models)) {
 			return $models;
 		}
 		else return false;
 	}
+<<<<<<< HEAD
 	function countBy($column,$value, $like=false) {
 		$value = strtolower($value);
 		if($like) {
@@ -113,5 +150,62 @@ class Controller {
 		}
 		else return false;
 	}
+=======
+	
+	function create($data,$returnURL) {
+		$model = new static::$model(0,$data);
+		try {
+			$model->save();
+			$_SESSION[static::$application_name]['message'] = static::$model . " created";
+			header("Location: $returnURL");
+			die();
+		}
+		catch(Exception $e) {
+			$_SESSION[static::$application_name]['error'] = $e->getMessage();
+			header("Location: $returnURL");
+			die();
+		}
+	}
+	
+	function update($data,$returnURL) {
+		$model = new static::$model($data['id']);
+		unset($data['id']);
+		foreach(array_keys($data) as $key) {
+			$str = "$key : " . $data[$key];
+			$model->set($key,$data[$key]);
+		}
+		try {
+			$model->save();
+			$_SESSION[static::$application_name]['message'] = static::$model . " saved";
+			header("Location: $returnURL");
+			die();
+		}
+		catch(Exception $e) {
+			$_SESSION[static::$application_name]['error'] = $e->getMessage();
+			header("Location: $returnURL");
+			die();
+		}
+	}
+	
+	/*DO NOT USE YET
+	function printTable($objects, $columns, $options) {
+		$str = "<table class='table tabled-bordered table-striped table-condensed'><tr>";
+		foreach($columns as $c) {
+			$str.= "<th>$c</th>";
+		}
+		$str.="</tr>";
+		foreach($objects as $o) {
+			$str.="<tr>";	
+		
+			foreach($columns as $c) {
+				$str.="<td>".$o->get($c)."</td>";
+			}
+			$str.="</tr>";
+		}
+		$str.="</table>";
+		return $str;
+	}
+	*/
+>>>>>>> 57de4889e91571d70f4c08adbbcac516fb7ba19b
 }
 ?>

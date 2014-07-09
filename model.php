@@ -5,30 +5,53 @@ class Model {
 	public $db;
 
 	protected $id;
+<<<<<<< HEAD
 	protected $valid;		//Indicates if the object from database is valid
+=======
+
+>>>>>>> 57de4889e91571d70f4c08adbbcac516fb7ba19b
 	public static $table;
 	public static $databaseUser;
 
 	protected $columns;		//Array of all columns of the object
 	protected $data;		//Actual data with column name as index
 	protected $changed;		//Indicates if a variable has been changed and needs to be saved
+<<<<<<< HEAD
 	
 	public $hasOne;
 	public $hasMany;
 	public $belongsTo;
 	public $hasAndBelongsToMany;
 	
+=======
+
+>>>>>>> 57de4889e91571d70f4c08adbbcac516fb7ba19b
 	/**
 	 * 
 	 * @param Int $id - pass in a 0 if it is a new object not yet in the Database
 	 * @param Array $data - optional, include array of data if it is a new object ($id=0)
 	 */
 	function __construct($id,$data=null) {
+<<<<<<< HEAD
 		$this->valid = true;
 		$this->db = DB::connect(static::$databaseUser);
 
 		if($id==0) {
 			$this->describeColumnsFromDB();
+=======
+		$this->db = DB::connect(static::$databaseUser);
+		
+		//Describe the columns of the object
+		$query = "select column_name,data_type from all_tab_columns where table_name='".static::$table."'";
+		$sth = $this->db->prepare($query);
+		$sth->execute();
+		while($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+			//$this->columns[] = Array($row['COLUMN_NAME'],$row['DATA_TYPE']);
+			$this->columns[] = $row['COLUMN_NAME'];
+		}
+		//die(var_dump($this->columns));
+		if($id==0) {
+>>>>>>> 57de4889e91571d70f4c08adbbcac516fb7ba19b
 			if($data!=null) {
 				foreach(array_keys($data) as $k) {
 					//check in columns
@@ -38,20 +61,31 @@ class Model {
 				}
 			}
 		}
+<<<<<<< HEAD
 		elseif($id!=0 && $data==null) {
 			$this->describeColumnsFromDB();
 			
 			$query = "SELECT * FROM ".static::$table." WHERE id=:id";
+=======
+		else {
+			$query = "SELECT * FROM ".static::$table." WHERE id=:id";
+
+>>>>>>> 57de4889e91571d70f4c08adbbcac516fb7ba19b
 			$this->id = $id;
 			$sth = $this->db->prepare($query);
 			$sth->bindParam(":id",$this->id,PDO::PARAM_INT);
 			$sth->execute();
+<<<<<<< HEAD
 			$row = $sth->fetch(PDO::FETCH_ASSOC);
 			if(!empty($row)) {
+=======
+			if($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+>>>>>>> 57de4889e91571d70f4c08adbbcac516fb7ba19b
 				foreach(array_keys($row) as $key) {
 					$this->data[$key] = $row[$key];
 				}
 			}
+<<<<<<< HEAD
 			else {
 				$this->valid = false;
 				return false;
@@ -68,6 +102,12 @@ class Model {
 	}
 
 	function save($debug=false) {
+=======
+		}
+	}
+
+	function save() {
+>>>>>>> 57de4889e91571d70f4c08adbbcac516fb7ba19b
 		//Make sure there is data to be saved
 		if(isset($this->changed)) {
 			//If id is 0, it is a brand new model, perform INSERT
@@ -88,7 +128,10 @@ class Model {
 				}
 				$query = substr_replace($query ,"",-1);
 				$query .= ")";
+<<<<<<< HEAD
 				
+=======
+>>>>>>> 57de4889e91571d70f4c08adbbcac516fb7ba19b
 				$sth = $this->db->prepare($query);
 				foreach($this->changed as $c) {
 					$sth->bindParam(":$c",$this->data[$c]);
@@ -105,6 +148,7 @@ class Model {
 					}
 				}
 				else {
+<<<<<<< HEAD
 					if($debug) {
 						$err = $sth->errorInfo();
 						throw new Exception($err[2]);
@@ -112,10 +156,14 @@ class Model {
 					else {
 						throw new Exception("Database Error occurred saving new data");
 					}
+=======
+					throw new Exception("Error saving new data");
+>>>>>>> 57de4889e91571d70f4c08adbbcac516fb7ba19b
 				}
 			}
 			//If id is not 0, it is existing, perform UPDATE
 			else {
+<<<<<<< HEAD
 				foreach(array_keys($this->changed) as $key) {
 					if(in_array($this->changed[$key],$this->columns)) {
 						$query = "UPDATE " .static::$table. " SET ".$this->changed[$key]."=:value WHERE id=:id";
@@ -124,6 +172,18 @@ class Model {
 						$sth->bindParam(":id",$this->id,PDO::PARAM_INT);
 						if($sth->execute()) {
 							unset($this->changed[$key]);
+=======
+				foreach($this->changed as $c) {
+					if(in_array($c,$this->columns)) {
+						$query = "UPDATE " .static::$table. " SET $c=:value WHERE id=:id";
+						$sth = $this->db->prepare($query);
+						$sth->bindParam(":value",$this->data[$c]);
+						$sth->bindParam(":id",$this->id,PDO::PARAM_INT);
+						
+						if($sth->execute()) {
+							unset($this->changed);
+							return true;
+>>>>>>> 57de4889e91571d70f4c08adbbcac516fb7ba19b
 						}
 						else {
 							throw new Exception("Error saving data");
@@ -133,11 +193,16 @@ class Model {
 					else {
 						throw new Exception("$c is not a column");
 					}
+<<<<<<< HEAD
 					unset($this->changed[$key]);
+=======
+					unset($this->changed);
+>>>>>>> 57de4889e91571d70f4c08adbbcac516fb7ba19b
 				}
 			}
 		}
 	}
+<<<<<<< HEAD
 	
 	public function delete() {
 		$query = "DELETE FROM ".static::$table." WHERE id=$this->id";
@@ -192,6 +257,23 @@ class Model {
 		//Otherwise retrieve normal column
 		if(isset($this->data[strtoupper($data)])) {
 			return $this->data[strtoupper($data)];
+=======
+
+	function set($column, $value) {
+		$column = strtoupper($column);
+		if(in_array($column,$this->columns)) {
+			$this->data[$column] = $value;
+			$this->changed[] = $column;
+		}
+		else {
+			throw new Exception("$column is not a column");
+		}
+	}
+
+	function get($column) {
+		if(isset($this->data[strtoupper($column)])) {
+			return $this->data[strtoupper($column)];
+>>>>>>> 57de4889e91571d70f4c08adbbcac516fb7ba19b
 		}
 		else {
 			return null;
@@ -200,6 +282,7 @@ class Model {
 	function getID() {
 		return $this->id;
 	}
+<<<<<<< HEAD
 	static function getTable() {
 		return static::$table;
 	}
@@ -281,5 +364,11 @@ class Model {
 			$this->columns[] = $row['COLUMN_NAME'];
 		}
 	}
+=======
+
+	static function getTable() {
+		return static::$table;
+	}
+>>>>>>> 57de4889e91571d70f4c08adbbcac516fb7ba19b
 }
 ?>
